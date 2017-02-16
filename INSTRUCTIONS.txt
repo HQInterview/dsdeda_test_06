@@ -17,7 +17,7 @@ Expected output file:
 - We need a csv file (with any delimited) with 3 columns: 1) predicted_date, 2) property_id, 3) optimal_CPC. The data in the csv can be "long" or "wide" format or any format that suits your needs or suit for visualzation.
 - The preliminary evaluation is we want you to describe how would you define "optima CPC".
 - Next, we want you to describe and justify the methodology of your choice. 
-- Ideally, you can show how to visualize these let assume the end users of this assignment is CFO or our Metasearch specialist.
+- Ideally, you can show how to visualize the end result, let assume the end users of this assignment is CFO or our Metasearch specialist.
 - Please also point out discrepancies in the input file if any. 
 
 $$ NOTE $$

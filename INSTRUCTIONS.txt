@@ -7,11 +7,10 @@ $$ Objectives $$
 Our state-of-HQ issue now (as of 2016), we are aiming to create an automated CPC bidding on our metasearch partner, i.e. seeking an optimal CPC(cost per click) on hotel level using any existing data, reports we acquired.
 
 $$ INSTRUCTIONS $$
-We provide sample data inside following S3 folder which are collected between 2017-01-26 and 2017-02-08 (see how to access AWS S3 in APPENDIX B section):
+We provide sample data inside following S3 folder which are collected between 2017-01-26 and 2017-02-08 (see how to access AWS S3 in APPENDIX B section and columns definition in APPENDIX A section):
 - bid_overview 
 - click_cost_overview 
 - property_overview
-
 Please develop an algorithm/models using any methodologies include time series analysis, non-linear/linear optimization, numerical optimization, or any statisical, machine learning technique to come up with forcasted "optimal CPC" on hotel level on a each silo name. Temporal dimension of the optimal CPC can be daily(up until any arbitary date) or a single date (arbitary date later than 2017-02-08).
 
 Expected output file:
@@ -29,7 +28,8 @@ $$ General hints $$
 - # Data is never cleaned, you hands must be dirty # -- Be aware bad data.
 - # All models are wrong but some are useful # -- Not necessarily state-of-the-art models or future-proof solutions, few basic ones might be sufficient, please focus on practicality.
 - # Make the analysis reproducible # –- We are fine if you black-box methodology with clear explanation.
-- # Sky is the limit, with acceptable overhead # –- Try think out of box, and feel free to adopt any methods but please also takes time constriants and computational costs into account. Please contact 
+- # Sky is the limit, with acceptable overhead # –- Try think out of box, and feel free to adopt any methods but please also takes time constriants and computational costs into account. Please contact corresponding recriting personal if you need addition infratructure to perform this assignment.
+
 
 $$ External open data sources $$:
 You can try leverage external open data sources such as:
@@ -37,6 +37,8 @@ You can try leverage external open data sources such as:
 - AWS Open Data https://aws.amazon.com/public-datasets/
 - World Bank Open Data http://data.worldbank.org/
 
+
+$$ Input File Column Description $$
 Bid Overview is a report containing auction-related data for our HQ property provided by Tripadvisor, which is based on a combination of traffic type, and several other optional parameters.
 The bid Overview report consolidates all bid recommendations into a single file containing “state of the bid" inventory for HQ. The goal is to provide as much information as possible to partners to allow us to intelligently bid for Tripadvisor traffic. The default Bid Overview report contains a single row for each property in that is currently in the partner inventory for a given silo. The report includes the following columns:
 [1]		silo name
@@ -269,13 +271,13 @@ The bid Overview report consolidates all bid recommendations into a single file 
 	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 10% more clicks
 	iii. Calculated by 110% current clicks x recommended bid 
 	iv. Value is an integer (fractional cents are not displayed)
-v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
 [41]	forecasted cost for 20 percent more clicks
 	i. Column heading: forecasted cost for 20 percent more clicks
 	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 20% more clicks
 	iii. Calculated by 120% current clicks x recommended bid 
 	iv. Value is an integer (fractional cents are not displayed)
-v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
 [42]	forecasted cost for 30 percent more clicks
 	i. Column heading: forecasted cost for 30 percent more clicks
 	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 30% more clicks
@@ -318,129 +320,6 @@ v. Value is blank when it is not possible to deliver the increased click volume 
 - basically, Property Overview contains city and countries where the properties are located at.
 
 
-APPENDIX B How to access AWS S3
+$$ APPENDIX B How to access AWS S3 $$
 1. Via https://hotelquickly.signin.aws.amazon.com/console with user name and password attached in the email.
 2. For accessing AWS S3 via given access key and secret key (the attched csv file in the email), please refer to https://www.cloudberrylab.com/blog/how-to-find-your-aws-access-key-id-and-secret-access-key-and-register-with-cloudberry-s3-explorer/.
-
-
-##############################################################################
-Pari-Mike Task 01 2016-10-18
-##############################################################################
-Objective
-- Our issue is that our data we imported into our system from elsewhere is not clean nor complete--there are about 40% of hotels without neccesary info, such as address, city, state(or province), postal code, latitiude, longitude.
-- What we need to do is to fill in missing hotel's address using column 'Address1' from ActivePropertyList.csv file(see column definition below), as well as latlong, address, postal code, state, city, country.
-- I've tried filling in by reversegeocoding given latlong in googlemap service, but it's not as good as expected. Fortunately, I found that Expedia provide hotel data online. As I primarily sampling-checked the data, I can match several hotels, plus, data in ActivePropertyList.csv are correct when I recheck in Expedia website itself.
-- Therefore, the main goal in this task is to match our hotel in given two input file and fill in missing data in bi_410_hotel_data_from_backend.csv.
-- The tricky parts here are that we need to fuzzy match not only hotel name, but also need to come up ways to match with other features of hotels (considering the case that we have duplicate hotel name in different cities or even in different countries) 
-- Ideally, please also point out discrepancies in the like duplicate hotels or duplicate latlong (unless the hotels are actually located at the same latlong) which might still is inside the data.
-
-Input file
-We have 2 Input files, the first one is main data taken from our backend, another one is data avilable in Expedia.
-1) bi_410_hotel_data_from_backend.csv
-Column description:
- -	hotel_id	: primary key of hotel in our system
- -	lst_city_id		:foreign key of hotel cities in our system
- -	lst_city_code	:hotel city code
- -	lst_city_name	:hotel city name
- -	lst_country_id	:foreign key of hotel countries in our system
- -	lst_country_name	:hotel country name
- -	hotel_latitude	:latitiude hotel's location 
- -	hotel_longitude	:longitude hotel's location 
- -	hotel_location_address_english	:address hotel's location 
- -	hotel_location_postal_code	:postal code of hotel's location if applicable
- -	hotel_ins_dt	:datetime when the hotel is inserted into our system (just ignore it for now)
- -	hotel_ins_process_id	:insert process by which the hotel is inserted into our system (just ignore it for now)
- -	latlong_query	:concatenated latlong used as one of parameters in reversegeocoding in Google Map Service
- -	ggplace_address	:address obtained by reversegeocoding in Google Map Service
- -	ggplace_postal_code	:postal code obtained by reversegeocoding in Google Map Service
- -	hotel_name	: hotel's name in our system
-2) ActivePropertyList.csv : this file contains hotel and related data (or property in Expedia), please download from https://www.ian.com/affiliatecenter/include/V2/ActivePropertyList.zip and see column definition as well as more detail from   http://developer.ean.com/database/property-data. 
-
-WARNING:  bi_410_hotel_data_from_backend.csv is not clean-- we can ensure that only hotel_id and hotel_name columns are correct.
-
-Output file Requirements
-- Please name output file anyhow you want but file extension must be in .csv with ",",";" or "|" delimited (pick one of your choice).
-- Output file must contain following columns. 
-	- 	hotel_id	: primary key of hotel in our system
-	-	expedia_Latitude	:matched hotel's latitiude
-	-	expedia_Longitude	:matched hotel's longitude
-	-	expedia_Address1	:matched hotel's address
-	-	expedia_PostalCode	:matched hotel's postal code
-	- 	expedia_StateProvince	:matched hotel's state
-	-	expedia_City		:matched hotel's city
-	-	expedia_Country		:matched hotel's country
-	
-- Values in colums in output file must set to 'NULL' if it's not available (it's easier to load data into db this way).
-
-Tools/Tech requirements: No restrictions, but preferably main streams data processing tools/language like Python, R, SQL, etc. (or even shel script, or other command line script)
-
-Priority: High
-
-Estimated Required Time: 2-4 days including result validation
-
-
-##############################################################################
-Pari-mike task 02 2016-10-18
-##############################################################################
-Since Mike are not yet able to access Jira, we can try playing with other things like Github Project faeture (https://github.com/blog/2256-a-whole-new-github-universe-announcing-new-tools-forums-and-features). So plase try handing the first task above in github. 
-There are no restriction or specific requirements, but just come up with ways how to effectively cooperate with other devs in the same project. You can create a seperate repos in https://github.com/HotelQuickly (make sure to set it as private repos). 
-
-
-
-
- $ V1                                        : chr  "" "" "" "" ...
- $ silo name                                 : chr  "AU-DMeta" "AU-DMeta" "AU-DMeta" "AU-DMeta" ...
- $ location id                               : chr  "72177" "72179" "72185" "72187" ...
- $ provider name                             : chr  "HotelQuickly" "HotelQuickly" "HotelQuickly" "HotelQuickly" ...
- $ customer name                             : chr  "HotelQuickly" "HotelQuickly" "HotelQuickly" "HotelQuickly" ...
- $ partner property id                       : chr  "54229" "91325" "248091" "269540" ...
- $ bid status                                : chr  "Active" "Active" "Active" "Active" ...
- $ traffic type                              : chr  "Desktop-Meta" "Desktop-Meta" "Desktop-Meta" "Desktop-Meta" ...
- $ current rank                              : chr  "999" "999" "999" "999" ...
- $ last week rank                            : chr  "999" "999" "999" "999" ...
- $ current bid                               : chr  "60" "1" "1" "1" ...
- $ current bid amount in usd                 : chr  "60" "1" "1" "1" ...
- $ current bid amount in local currency      : chr  "60" "1" "1" "1" ...
- $ currency code                             : chr  "US$" "US$" "US$" "US$" ...
- $ current plm                               : chr  "155" "90" "40" "20" ...
- $ future plm                                : logi  NA NA NA NA NA NA ...
- $ plm miss                                  : chr  "155" "90" "40" "20" ...
- $ future plm miss                           : logi  NA NA NA NA NA NA ...
- $ bid for 1                                 : chr  "515" "381" "" "291" ...
- $ bid for 2                                 : chr  "415" "287" "" "241" ...
- $ bid for 3                                 : chr  "365" "223" "" "191" ...
- $ bid for next                              : chr  "159" "" "" "" ...
- $ new bucket required                       : chr  "f" "f" "f" "f" ...
- $ forecasted clicks                         : chr  "0.19" "0" "0" "0" ...
- $ forecasted clicks for 1                   : chr  "4.32" "0" "" "0" ...
- $ forecasted clicks for 2                   : chr  "2.09" "0" "" "0" ...
- $ forecasted clicks for 3                   : chr  "1.09" "0" "" "0" ...
- $ forecasted cost                           : chr  "12" "0" "0" "0" ...
- $ forecasted cost for 1                     : chr  "2222" "0" "" "0" ...
- $ forecasted cost for 2                     : chr  "866" "0" "" "0" ...
- $ forecasted cost for 3                     : chr  "398" "0" "" "0" ...
- $ avg display rank                          : chr  "" "" "" "" ...
- $ top property                              : chr  "t" "f" "f" "f" ...
- $ click index                               : chr  "0.29" "0" "0" "0" ...
- $ bid to max                                : chr  "702" "520" "40" "396" ...
- $ 5 percent more clicks                     : chr  "159" "" "" "" ...
- $ 10 percent more clicks                    : chr  "159" "" "" "" ...
- $ 20 percent more clicks                    : chr  "159" "" "" "" ...
- $ 30 percent more clicks                    : chr  "159" "" "" "" ...
- $ 40 percent more clicks                    : chr  "159" "" "" "" ...
- $ 50 percent more clicks                    : chr  "159" "" "" "" ...
- $ forecasted clicks for max                 : chr  "4.91" "0" "0" "0" ...
- $ forecasted cost for max                   : chr  "3445" "0" "0" "0" ...
- $ forecasted cost for 5 percent more clicks : chr  "48" "" "" "" ...
- $ forecasted cost for 10 percent more clicks: chr  "48" "" "" "" ...
- $ forecasted cost for 20 percent more clicks: chr  "48" "" "" "" ...
- $ forecasted cost for 30 percent more clicks: chr  "48" "" "" "" ...
- $ forecasted cost for 40 percent more clicks: chr  "48" "" "" "" ...
- $ forecasted cost for 50 percent more clicks: chr  "48" "" "" "" ...
- $ 1 day clicks for max                      : chr  "0.82" "0" "0" "0" ...
- $ single chevron treatment                  : chr  "0%" "0%" "99%" "0%" ...
- $ suppression rate                          : chr  "" "" "" "" ...
- $ 7 day suppression rate                    : chr  "" "" "" "" ...
-
- 
-

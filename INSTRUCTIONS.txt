@@ -7,10 +7,10 @@ $$ Objectives $$
 Our state-of-HQ issue now (as of 2016), we are aiming to create an automated CPC bidding on our metasearch partner, i.e. seeking an optimal CPC(cost per click) on hotel level using any existing data, reports we acquired.
 
 $$ INSTRUCTIONS $$
-We provide sample data inside following S3 folder which are collected between 2017-01-26 and 2017-02-08 (see how to access AWS S3 in APPENDIX B section and columns definition in APPENDIX A section):
-- bid_overview 
-- click_cost_overview 
-- property_overview
+We provide sample data inside following S3 bucket in which we collected between 2017-01-26 and 2017-02-08 (see how to access AWS S3 in APPENDIX B section and columns definition in APPENDIX A section):
+- s3://hq-dsdeda-assignment/DS_DE_ASSIGNMENT/TEST_06/bid_overview 
+- s3://hq-dsdeda-assignment/DS_DE_ASSIGNMENT/TEST_06/click_cost_overview 
+- s3://hq-dsdeda-assignment/DS_DE_ASSIGNMENT/TEST_06/property_overview
 Please develop an algorithm/models using any methodologies include time series analysis, non-linear/linear optimization, numerical optimization, or any statisical, machine learning technique to come up with forcasted "optimal CPC" on hotel level on a each silo name. Temporal dimension of the optimal CPC can be daily(up until any arbitary date) or a single date (arbitary date later than 2017-02-08).
 
 Expected output file:

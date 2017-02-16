@@ -1,0 +1,446 @@
+##############################################################################
+DS_DE_ASSIGNMENT/TEST_06
+##############################################################################
+This test is designed as a placement test to evaluate potential candidates in data science and data engineer fields. It aims to facilate the evaluated candidates to demonstrate desirable skills such as thinking process, data manipulation, data management, data quality management, data processing, logics and algorithm developing, etc., without restrictions of any tools, platform used to acheive the end results.
+
+$$ Objectives $$
+Our state-of-HQ issue now (as of 2016), we are aiming to create an automated CPC bidding on our metasearch partner, i.e. seeking an optimal CPC(cost per click) on hotel level using any existing data, reports we acquired.
+
+$$ INSTRUCTIONS $$
+We provide sample data inside following S3 folder which are collected between 2017-01-26 and 2017-02-08 (see how to access AWS S3 in APPENDIX B section):
+- bid_overview 
+- click_cost_overview 
+- property_overview
+
+Please develop an algorithm/models using any methodologies include time series analysis, non-linear/linear optimization, numerical optimization, or any statisical, machine learning technique to come up with forcasted "optimal CPC" on hotel level on a each silo name. Temporal dimension of the optimal CPC can be daily(up until any arbitary date) or a single date (arbitary date later than 2017-02-08).
+
+Expected output file:
+- We need a csv file (with any delimited) with 3 columns: 1) predicted_date, 2) property_id, 3) optimal_CPC. The data in the csv can be "long" or "wide" format or any format that suits your needs or suit for visualzation.
+- The preliminary evaluation is we want you to describe how would you define "optima CPC".
+- Next, we want you to describe and justify the methodology of your choice. 
+- Ideally, you can show how to visualize these let assume the end users of this assignment is CFO or our Metasearch specialist.
+- Please also point out discrepancies in the input file if any. 
+
+$$ NOTE $$
+- Let assume all datetime, date type are in UTC.
+- Let simply this problem by not considering property geolocation, as you might notice in the property_overview file in which we provided only property's city and country.
+
+$$ General hints $$
+- # Data is never cleaned, you hands must be dirty # -- Be aware bad data.
+- # All models are wrong but some are useful # -- Not necessarily state-of-the-art models or future-proof solutions, few basic ones might be sufficient, please focus on practicality.
+- # Make the analysis reproducible # –- We are fine if you black-box methodology with clear explanation.
+- # Sky is the limit, with acceptable overhead # –- Try think out of box, and feel free to adopt any methods but please also takes time constriants and computational costs into account. Please contact 
+
+$$ External open data sources $$:
+You can try leverage external open data sources such as:
+- Yahoo Opendata http://www.opendata500.com/us/yahoo/
+- AWS Open Data https://aws.amazon.com/public-datasets/
+- World Bank Open Data http://data.worldbank.org/
+
+Bid Overview is a report containing auction-related data for our HQ property provided by Tripadvisor, which is based on a combination of traffic type, and several other optional parameters.
+The bid Overview report consolidates all bid recommendations into a single file containing “state of the bid" inventory for HQ. The goal is to provide as much information as possible to partners to allow us to intelligently bid for Tripadvisor traffic. The default Bid Overview report contains a single row for each property in that is currently in the partner inventory for a given silo. The report includes the following columns:
+[1]		silo name
+	i. Column heading: silo name
+	ii. Silo that contains this offer
+	iii. Value is a string
+[2]		tripadvisor property id
+	i. Column heading: tripadvisor property id
+	ii. TripAdvisor ID for this property
+	iii. Value is an integer
+[3]		bid status
+	i. Column heading: bid status
+	ii. Valid values:
+		1. Active:  offer is active and displayed
+		2. Below PLM: offer is active, but is not being shown because the bid is below the PLM
+		3. Revshare visible: offer is active using rev share and is shown
+		4. Revshare suppressed: offer is active using rev share, but is not being shown (either because the bid is too low, or the property isn’t showing rev share offers at this time)
+		5. Graylisted: offer is active, but the property is showing as (/) due to a price integrity issue
+		6. Inactive: offer has been made inactive with a bid of 0
+[4]		traffic type
+	i. Column heading: traffic type
+	ii. Traffic type covered by this row
+	iii. Value is a string
+		1. Desktop-Meta
+		2. Mobile-Meta
+[5]		current rank
+	i. Column heading: current rank
+	ii. Predicted average display rank  for this location in this silo using today’s bid landscape and the current auction logic 
+	iii. Value is always greater than 1
+	iv. When report is aggregated by silo and the row represents a single-IP silo, value is the average display rank for this property for all impressions in that IP, expressed to one decimal point (e.g. 3.2)
+	v. When report is aggregated by silo and the row represents a multi-IP silo, value is the average of all display rank values among the IPs represented by the silo, expressed to one decimal point (e.g. if a silo represents two IPs and the IPs have a predicted display rank of 3.2 and 3.4, the predicted display rank for the multi-IP silo will be 3.3)
+	vi. When Bid Status is inactive, this value is displayed as 999
+	vii. Value does not reflect the impact of remarketing multipliers on specified audiences or Instant Book placements
+[6]		last week rank
+	i. Column heading: last week rank
+	ii. Bid position for the partner 7 days ago (CPC rank)
+	iii. When report is aggregated by IP, value is an integer
+	iv. When report is aggregated by silo, value is an average of all values among the IPs represented by the silo, calculated to two decimal points (e.g. 6.67). When only one IP is represented by the silo, value is an integer
+[7]		current bid
+	i. Column heading: current bid amount in usd
+	ii. Current CPC bid for the given offer in this silo, using USD 
+	iii. Value is blank when bid_status is Inactive 
+	iv. If the partner has enabled retargeting, bid multipliers supplied in a multiplier feed will be applied to this bid for specified audiences 
+[8]		current bid amount in local currency
+	i. Column heading: current bid amount in local currency
+	ii. Current CPC bid for the given offer in this silo, using the local currency for this silo
+	iii. Value is blank when bid_status is Inactive 
+[9]		currency code
+	i. Column heading: currency code
+	ii. Local CPC currency code  assigned to this silo
+[10]	current plm
+	i. Column heading: current plm
+	ii. Minimum bid (i.e. PLM) for this property in this IP, using the local currency for this silo
+	iii. Effective date for Current PLM appears in hashed header row with label “Current PLM live date”
+	iv. When report is aggregated by silo, column displays the highest PLM value for that property among all IPs represented by that silo
+[11]	future plm
+	i. Column heading: future plm
+	ii. Minimum bid for this property in this IP on the date when future PLM goes live for this property in this IP, using the local currency for this silo
+	iii. Effective date for Future PLM appears in hashed header row with label “Future PLM live date”
+	iv. When report is aggregated by silo, column displays the highest future PLM value for that property among all IPs represented by that silo
+[12]	plm miss
+	i. Column heading: plm miss
+	ii. Recommended bid to change bid status from “Below_PLM” to “Active” when current bid is below PLM for this property in this IP
+	iii. Displayed in the local currency for this silo
+	iv. Effective date for Current PLM appears in hashed header row with label “Current PLM live date”
+	v. When report is aggregated by silo, column displays the highest PLM value for that property among all IPs represented by that silo
+[13]	future plm miss
+	i. Column heading: future plm miss
+	ii. Recommended bid to remain active or change bid status from “Below_PLM” to “Active” on the date when future PLM goes live for this property in this IP
+	iii. Displayed in the local currency for this silo 
+	iv. Effective date for Future PLM appears in hashed header row with label “Future PLM live date”
+	v. When report is aggregated by silo, column displays the highest future PLM value for that property among all IPs represented by that silo
+[14]	bid for 1
+	i. Column heading: bid for 1
+	ii. Lowest bid above PLM required for a partner to be displayed in 1st position a minimum of 80% of the time (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where predicted_display_rank is lower than 1 or recommended bid would lower than current bid 
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[15]	bid for 2
+	i. Column heading: bid for 2
+	ii. Lowest bid above PLM required for a partner to be displayed in 2nd position a minimum of 80% of the time (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where predicted_display_rank is lower than 2 or recommended bid would be lower than current bid 
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[16]	bid for 3
+	i. Column heading: bid for 3
+	ii. Lowest bid above PLM required for a partner to be displayed in 3rd position a minimum of 80% of the time (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where predicted_display_rank is lower than 3 or recommended bid would be lower than current bid 
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[17]	bid for next
+	i. Column heading: bid for next (PLEASE NOTE: COLUMN HEADING DOES NOT ACCURATELY DESCRIBE CONTENTS)
+	ii. Lowest CPC bid above PLM required for a partner to receive 20% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[18]	new bucket required
+	i. Column heading: no bucket required
+	ii. Obsolete, always f (for false)
+[19]	forecasted clicks
+	i. Column heading: forecasted clicks
+	ii. Estimated aggregate number of clicks for this property in the next 14 days, assuming that the bid amount remains unchanged and the competitive bid landscape does not change
+	iii. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+[20]	forecasted clicks for 1
+	i. Column heading: forecasted clicks for 1
+	ii. Estimated aggregate number of clicks for this property in the next 14 days, if partner uses the bid to 1 rec and the competitive bid landscape does not change
+	iii. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	iv. Value is blank when bid to 1 is blank
+[21]	forecasted clicks for 2
+	i. Column heading: forecasted clicks for 2
+	ii. Estimated aggregate number of clicks for this property in the next 14 days, if partner uses the bid to 2 rec and the competitive bid landscape does not change
+	iii. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	iv. Value is blank when bid to 2 is blank
+[22]	forecasted clicks for 3
+	i. Column heading: forecasted clicks for 3
+	ii. Estimated aggregate number of clicks for this property in the next 14 days, if partner uses the bid to 3 rec and the competitive bid landscape does not change
+	iii. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	iv. Value is blank when bid to 3 is blank
+[23]	forecasted cost
+	i. Column heading: forecasted cost
+	ii. Estimated USD cost (in cents) for clicks to this property in the next 14 days, assuming that the bid amount and bid position remain unchanged and the competitive bid landscape does not change
+	iii. Calculated by number of forecasted clicks at this position x current bid
+	iv. Value is an integer (fractional cents are not displayed)
+[24]	forecasted cost for 1
+	i. Column heading: forecasted cost for 1
+	ii. Estimated USD cost (in cents) for clicks to this property in the next 14 days, if the bid position was changed to first position and the competitive bid landscape does not change
+	iii. Calculated by number of forecasted clicks at this position x bid required to reach this position
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank if bid position is already first position
+[25]	forecasted cost for 2
+	i. Column heading: forecasted cost for 2
+	ii. Estimated USD cost (in cents) for clicks to this property in the next 14 days, if the bid position was changed to second position and the competitive bid landscape does not change
+	iii. Calculated by number of forecasted clicks at this position x bid required to reach this position
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank if bid position is already first or second position
+[26]	forecasted cost for 3
+	i. Column heading: forecasted cost for 3
+	ii. Estimated USD cost (in cents) for clicks to this property in the next 14 days, if the bid position was changed to third position and the competitive bid landscape does not change
+	iii. Calculated by number of forecasted clicks at this position x bid required to reach this position
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank if bid position is already first, second, or third position
+[27]	avg display rank
+	i. Column heading: avg display rank
+	ii. Actual average display rank for this partner on this property for the past 14 days
+	iii. Value is always greater than 1
+	iv. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	v. Value is based upon /Hotel_Review impressions on Desktop and Tablet and “Bookable Offers” page traffic for Mobile
+	vi. Value does NOT currently reflect the impact of Instant Book placements
+[28]	top property
+	i. Column heading: top property
+	ii. Indicates that the property has received at least 1 click in the specified IP (or group of IPs) in the past 14 days
+	iii. Value is a String (either t for true or f for false)
+[29]	click index
+	i. Column heading: click index
+	ii. Indicates the property click “weight” for that traffic type in the selected IP (or group of IPs) in the past 14 days, showing the property’s click traffic in relation to other properties for that period of time
+	iii. Values is a decimal value between 0 to 1, calculated to two decimal places (e.g. 0.98, 0.67, 0.01, 0.00)
+[30]	bid to max
+	i. Column heading: bid to max
+	ii. Lowest CPC bid above PLM required for a partner to be displayed in 1st position 99% of the time (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is included for in all cases, even if the current bid is equal to or higher than the Bid To Max calculation; in those cases, partner can bid down to this rec without negative impact on click volume (assuming no competitive bids change)
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[31]	5 percent more clicks
+	i. Column heading: 5 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 5% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[32]	10 percent more clicks
+	i. Column heading: 10 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 10% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[33]	20 percent more clicks
+	i. Column heading: 20 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 20% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[34]	30 percent more clicks
+	i. Column heading: 30 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 30% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	vi. Displayed in the local currency for this silo
+	vii. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[35]	40 percent more clicks
+	i. Column heading: 40 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 40% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among 
+[36]	50 percent more clicks
+	i. Column heading: 50 percent more clicks
+	ii. Lowest CPC bid above PLM required for a partner to receive 50% more click volume compared to current bid (assuming that no competitive bids change)
+	iii. Value is an integer
+	iv. Value is only included in cases where it is possible to deliver the increased click volume indicated by the column heading. Any or all of the fields could be blank for long-tail properties, when the partner has already bid to max, when the predicted number of clicks is zero, or if the partner is the only participant in the auction.
+	v. Displayed in the local currency for this silo
+	vi. When report is aggregated by silo, column displays the highest bid for that property among all IPs represented by that silo
+[37]	forecasted clicks for max
+	i. Column heading: forecasted clicks for max
+	ii. Estimated aggregate number of clicks for this property in the next 14 days, if partner uses the bid to max rec and the competitive bid landscape does not change
+	iii. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	iv. Value is blank if already bid to max
+[38]	forecasted cost for max
+	i. Column heading: forecasted cost for max
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for max
+	iii. Calculated by number of forecasted clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank if already bid to max
+[39]	forecasted cost for 5 percent more clicks
+	i. Column heading: forecasted cost for 5 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 5% more clicks
+	iii. Calculated by 105% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[40]	forecasted cost for 10 percent more clicks
+	i. Column heading: forecasted cost for 10 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 10% more clicks
+	iii. Calculated by 110% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[41]	forecasted cost for 20 percent more clicks
+	i. Column heading: forecasted cost for 20 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 20% more clicks
+	iii. Calculated by 120% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[42]	forecasted cost for 30 percent more clicks
+	i. Column heading: forecasted cost for 30 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 30% more clicks
+	iii. Calculated by 130% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[43]	forecasted cost for 40 percent more clicks
+	i. Column heading: forecasted cost for 40 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 40% more clicks
+	iii. Calculated by 140% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[44]	forecasted cost for 50 percent more clicks
+	i. Column heading: forecasted cost for 50 percent more clicks
+	ii. Estimated cost (in local currency, in cents) for clicks to this property in the next 14 days, if the bid is changed to the rec for 50% more clicks
+	iii. Calculated by 150% current clicks x recommended bid 
+	iv. Value is an integer (fractional cents are not displayed)
+	v. Value is blank when it is not possible to deliver the increased click volume indicated by the column heading 
+[45]	1 day clicks for max
+	i. Column heading: 1 day clicks for max
+	ii. Estimated number of clicks for this property in this silo two calendar days in the past, if a single partner had used the “Bid To Max” recommendation on that date
+	iii. Calculated using the number of clicks received by the property-IP combination two calendar days in the past and the IP-level click curve
+	iv. In a small number of cases, the estimated number could be lower than the total number of clicks earned by a specific partner (e.g. when only one partner is participating in the auction or the click curve for that property differs greatly from the IP-level click curve)
+	v. Value is a number, expressed to the nearest one-hundredth (e.g. #.00)
+	vi. Value is always present
+[46]	single chevron treatment
+	i. Column heading: single chevron treatment
+	ii. Percentage of impressions where partner’s current bid qualifies for single-chevron treatment assuming that partner meets or beats lowest price for property in that IP (pricing qualification is not considered)
+	iii. Value will be displayed as 0% when the likelihood of single-chevron treatment is zero or very close to zero based on the bid gap
+	iv. Value is blank when the property is in Below_PLM or Inactive status and therefore ineligible to appear in any position
+[47]	suppression rate
+	i. Column heading: Suppression rate
+	ii. Indicates the percentage of suppressed impressions out of the total impressions of a provider for the selected IP, traffic-type combination. 
+	iii. Value is an integer ranging from 1 to 5 (e.g. 1, 3, 5). 5 represents the highest amount of suppression and 1 the lowest.
+	iv. Value is blank when there are no impressions for the property. 
+    
+2. click_cost_overview/click_cost_overview-YYYY_MM_DD.csv
+- Click cost overview reports provide actual cost HQ paid and actual click users aggregate-by,date, siloname, tripadvisor location id.
+3. property_overview/property_overview.csv						  
+- basically, Property Overview contains city and countries where the properties are located at.
+
+
+APPENDIX B How to access AWS S3
+1. Via https://hotelquickly.signin.aws.amazon.com/console with user name and password attached in the email.
+2. For accessing AWS S3 via given access key and secret key (the attched csv file in the email), please refer to https://www.cloudberrylab.com/blog/how-to-find-your-aws-access-key-id-and-secret-access-key-and-register-with-cloudberry-s3-explorer/.
+
+
+##############################################################################
+Pari-Mike Task 01 2016-10-18
+##############################################################################
+Objective
+- Our issue is that our data we imported into our system from elsewhere is not clean nor complete--there are about 40% of hotels without neccesary info, such as address, city, state(or province), postal code, latitiude, longitude.
+- What we need to do is to fill in missing hotel's address using column 'Address1' from ActivePropertyList.csv file(see column definition below), as well as latlong, address, postal code, state, city, country.
+- I've tried filling in by reversegeocoding given latlong in googlemap service, but it's not as good as expected. Fortunately, I found that Expedia provide hotel data online. As I primarily sampling-checked the data, I can match several hotels, plus, data in ActivePropertyList.csv are correct when I recheck in Expedia website itself.
+- Therefore, the main goal in this task is to match our hotel in given two input file and fill in missing data in bi_410_hotel_data_from_backend.csv.
+- The tricky parts here are that we need to fuzzy match not only hotel name, but also need to come up ways to match with other features of hotels (considering the case that we have duplicate hotel name in different cities or even in different countries) 
+- Ideally, please also point out discrepancies in the like duplicate hotels or duplicate latlong (unless the hotels are actually located at the same latlong) which might still is inside the data.
+
+Input file
+We have 2 Input files, the first one is main data taken from our backend, another one is data avilable in Expedia.
+1) bi_410_hotel_data_from_backend.csv
+Column description:
+ -	hotel_id	: primary key of hotel in our system
+ -	lst_city_id		:foreign key of hotel cities in our system
+ -	lst_city_code	:hotel city code
+ -	lst_city_name	:hotel city name
+ -	lst_country_id	:foreign key of hotel countries in our system
+ -	lst_country_name	:hotel country name
+ -	hotel_latitude	:latitiude hotel's location 
+ -	hotel_longitude	:longitude hotel's location 
+ -	hotel_location_address_english	:address hotel's location 
+ -	hotel_location_postal_code	:postal code of hotel's location if applicable
+ -	hotel_ins_dt	:datetime when the hotel is inserted into our system (just ignore it for now)
+ -	hotel_ins_process_id	:insert process by which the hotel is inserted into our system (just ignore it for now)
+ -	latlong_query	:concatenated latlong used as one of parameters in reversegeocoding in Google Map Service
+ -	ggplace_address	:address obtained by reversegeocoding in Google Map Service
+ -	ggplace_postal_code	:postal code obtained by reversegeocoding in Google Map Service
+ -	hotel_name	: hotel's name in our system
+2) ActivePropertyList.csv : this file contains hotel and related data (or property in Expedia), please download from https://www.ian.com/affiliatecenter/include/V2/ActivePropertyList.zip and see column definition as well as more detail from   http://developer.ean.com/database/property-data. 
+
+WARNING:  bi_410_hotel_data_from_backend.csv is not clean-- we can ensure that only hotel_id and hotel_name columns are correct.
+
+Output file Requirements
+- Please name output file anyhow you want but file extension must be in .csv with ",",";" or "|" delimited (pick one of your choice).
+- Output file must contain following columns. 
+	- 	hotel_id	: primary key of hotel in our system
+	-	expedia_Latitude	:matched hotel's latitiude
+	-	expedia_Longitude	:matched hotel's longitude
+	-	expedia_Address1	:matched hotel's address
+	-	expedia_PostalCode	:matched hotel's postal code
+	- 	expedia_StateProvince	:matched hotel's state
+	-	expedia_City		:matched hotel's city
+	-	expedia_Country		:matched hotel's country
+	
+- Values in colums in output file must set to 'NULL' if it's not available (it's easier to load data into db this way).
+
+Tools/Tech requirements: No restrictions, but preferably main streams data processing tools/language like Python, R, SQL, etc. (or even shel script, or other command line script)
+
+Priority: High
+
+Estimated Required Time: 2-4 days including result validation
+
+
+##############################################################################
+Pari-mike task 02 2016-10-18
+##############################################################################
+Since Mike are not yet able to access Jira, we can try playing with other things like Github Project faeture (https://github.com/blog/2256-a-whole-new-github-universe-announcing-new-tools-forums-and-features). So plase try handing the first task above in github. 
+There are no restriction or specific requirements, but just come up with ways how to effectively cooperate with other devs in the same project. You can create a seperate repos in https://github.com/HotelQuickly (make sure to set it as private repos). 
+
+
+
+
+ $ V1                                        : chr  "" "" "" "" ...
+ $ silo name                                 : chr  "AU-DMeta" "AU-DMeta" "AU-DMeta" "AU-DMeta" ...
+ $ location id                               : chr  "72177" "72179" "72185" "72187" ...
+ $ provider name                             : chr  "HotelQuickly" "HotelQuickly" "HotelQuickly" "HotelQuickly" ...
+ $ customer name                             : chr  "HotelQuickly" "HotelQuickly" "HotelQuickly" "HotelQuickly" ...
+ $ partner property id                       : chr  "54229" "91325" "248091" "269540" ...
+ $ bid status                                : chr  "Active" "Active" "Active" "Active" ...
+ $ traffic type                              : chr  "Desktop-Meta" "Desktop-Meta" "Desktop-Meta" "Desktop-Meta" ...
+ $ current rank                              : chr  "999" "999" "999" "999" ...
+ $ last week rank                            : chr  "999" "999" "999" "999" ...
+ $ current bid                               : chr  "60" "1" "1" "1" ...
+ $ current bid amount in usd                 : chr  "60" "1" "1" "1" ...
+ $ current bid amount in local currency      : chr  "60" "1" "1" "1" ...
+ $ currency code                             : chr  "US$" "US$" "US$" "US$" ...
+ $ current plm                               : chr  "155" "90" "40" "20" ...
+ $ future plm                                : logi  NA NA NA NA NA NA ...
+ $ plm miss                                  : chr  "155" "90" "40" "20" ...
+ $ future plm miss                           : logi  NA NA NA NA NA NA ...
+ $ bid for 1                                 : chr  "515" "381" "" "291" ...
+ $ bid for 2                                 : chr  "415" "287" "" "241" ...
+ $ bid for 3                                 : chr  "365" "223" "" "191" ...
+ $ bid for next                              : chr  "159" "" "" "" ...
+ $ new bucket required                       : chr  "f" "f" "f" "f" ...
+ $ forecasted clicks                         : chr  "0.19" "0" "0" "0" ...
+ $ forecasted clicks for 1                   : chr  "4.32" "0" "" "0" ...
+ $ forecasted clicks for 2                   : chr  "2.09" "0" "" "0" ...
+ $ forecasted clicks for 3                   : chr  "1.09" "0" "" "0" ...
+ $ forecasted cost                           : chr  "12" "0" "0" "0" ...
+ $ forecasted cost for 1                     : chr  "2222" "0" "" "0" ...
+ $ forecasted cost for 2                     : chr  "866" "0" "" "0" ...
+ $ forecasted cost for 3                     : chr  "398" "0" "" "0" ...
+ $ avg display rank                          : chr  "" "" "" "" ...
+ $ top property                              : chr  "t" "f" "f" "f" ...
+ $ click index                               : chr  "0.29" "0" "0" "0" ...
+ $ bid to max                                : chr  "702" "520" "40" "396" ...
+ $ 5 percent more clicks                     : chr  "159" "" "" "" ...
+ $ 10 percent more clicks                    : chr  "159" "" "" "" ...
+ $ 20 percent more clicks                    : chr  "159" "" "" "" ...
+ $ 30 percent more clicks                    : chr  "159" "" "" "" ...
+ $ 40 percent more clicks                    : chr  "159" "" "" "" ...
+ $ 50 percent more clicks                    : chr  "159" "" "" "" ...
+ $ forecasted clicks for max                 : chr  "4.91" "0" "0" "0" ...
+ $ forecasted cost for max                   : chr  "3445" "0" "0" "0" ...
+ $ forecasted cost for 5 percent more clicks : chr  "48" "" "" "" ...
+ $ forecasted cost for 10 percent more clicks: chr  "48" "" "" "" ...
+ $ forecasted cost for 20 percent more clicks: chr  "48" "" "" "" ...
+ $ forecasted cost for 30 percent more clicks: chr  "48" "" "" "" ...
+ $ forecasted cost for 40 percent more clicks: chr  "48" "" "" "" ...
+ $ forecasted cost for 50 percent more clicks: chr  "48" "" "" "" ...
+ $ 1 day clicks for max                      : chr  "0.82" "0" "0" "0" ...
+ $ single chevron treatment                  : chr  "0%" "0%" "99%" "0%" ...
+ $ suppression rate                          : chr  "" "" "" "" ...
+ $ 7 day suppression rate                    : chr  "" "" "" "" ...
+
+ 
+
